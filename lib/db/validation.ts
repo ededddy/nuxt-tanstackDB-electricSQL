@@ -4,8 +4,9 @@ import type { z } from "zod/v4";
 import { testTableInTest } from "./schema";
 
 export const insertTodoSchema = createInsertSchema(testTableInTest).omit({
-    createdAt: true,
-    updatedAt: true,
+    id: true,
+    created_at: true,
+    updated_at: true,
 });
 export const selectTodoSchema = createSelectSchema(testTableInTest);
 

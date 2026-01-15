@@ -1,6 +1,18 @@
-# Nuxt Minimal Starter
+# Toy Project Nuxt , @tanstack/db & ElectricSQL
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+
+## Services used
+
+- Neon Postgres (`production` branch with `neondb_owner`)
+- ElectricSQL cloud
+
+## To Do ? If I have time
+1. Offline Support  
+   ElectricSQL and @tanstack/db can support offline pwa
+   that merge automatically, [official doc](https://github.com/TanStack/db/tree/main/examples/react/offline-transactions)
+2. Authentication stuff (mainly to protect endpoints, specifically
+   ElectricSQL's proxy)
 
 ## Setup
 

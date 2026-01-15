@@ -7,5 +7,6 @@ export default defineConfig({
         url: process.env.NEON_URL!,
         database: process.env.POSTGRES_DATABASE!,
     },
+    schema: "./lib/db/schema.ts",
     schemaFilter: ["test"],
 });

@@ -13,28 +13,23 @@ export const todosCollection = createCollection(
             },
             parser: {
                 timestamptz: (data: string) => new Date(data),
-            },
-            onError: (error) => {
-                console.error("ElectricSQL collection error:", error);
-                console.error("Error details:", JSON.stringify(error, null, 2));
-            },
-            onSuccess: (data) => {
-                console.log("ElectricSQL shape loaded successfully:", data);
+                timestamp: (data: string) => new Date(data),
             },
         },
-        getKey: ({ id }) => id,
+        getKey: item => item.id,
         schema: selectTodoSchema,
         onInsert: async ({ transaction }) => {
             const {
                 id,
-                createdAt: _f,
-                updatedAt: _ff,
+                created_at: _f,
+                updated_at: _ff,
                 ...modified
             } = transaction.mutations[0].modified;
             const response = await api.todos.create(modified);
             return { txid: response.txid };
         },
         onUpdate: async ({ transaction }) => {
+            console.log(transaction.mutations);
             const txids = await Promise.all(
                 transaction.mutations.map(async (mutation) => {
                     const { original, changes } = mutation;

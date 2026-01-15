@@ -20,6 +20,14 @@ export const validateSelectTodo = (data: unknown): SelectTodo => {
     return selectTodoSchema.parse(data);
 };
 
+export const validateInsertTodo = (data: unknown): InsertTodo => {
+    const parsed = insertTodoSchema.parse(data);
+    if (parsed.description === `really hard todo`) {
+        throw new Error(`we don't want to do really hard todos`);
+    }
+    return parsed;
+};
+
 export const validateUpdateTodo = (data: unknown): UpdateTodo => {
     return updateTodoSchema.parse(data);
 };

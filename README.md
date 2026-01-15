@@ -14,6 +14,11 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 2. Authentication stuff (mainly to protect endpoints, specifically
    ElectricSQL's proxy)
 
+## Vibe Code
+Currently, vibe coded things:
+- Fix electric sql proxy return method
+- UI
+
 ## Setup
 
 Make sure to install dependencies:

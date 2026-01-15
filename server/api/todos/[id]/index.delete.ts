@@ -1,20 +1,22 @@
-import { sql } from "~~/lib/db/postgres";
+import db from "~~/lib/db";
+import { testTableInTest } from "~~/lib/db/schema";
 import generateTxId from "~~/server/utils/generateTxId";
 import type { Txid } from "@tanstack/electric-db-collection";
+import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
     try {
         const id = getRouterParam(event, "id");
 
         let txid!: Txid;
-        await sql.begin(async (tx) => {
+
+        await db.transaction(async (tx) => {
             txid = await generateTxId(tx);
 
-            const [result] = await tx`
-                DELETE FROM test.test_table
-                WHERE id = ${id}
-                RETURNING id
-            `;
+            const [result] = await tx.delete(testTableInTest)
+                .where(
+                    eq(testTableInTest.id, parseInt(id!)),
+                ).returning({ id: testTableInTest.id });
 
             if (!result) {
                 throw new Error(`Todo with id ${id} not found`);

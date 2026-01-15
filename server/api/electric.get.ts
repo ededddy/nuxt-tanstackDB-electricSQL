@@ -1,24 +1,69 @@
 export default defineEventHandler(async (event) => {
-    const baseUrl = new URL("/v1/shape", process.env.ELECTRIC_URL!);
+    try {
+        // Validate required query parameters from client
+        const query = getQuery(event);
 
-    const query = getQuery(event);
+        if (!query.table) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Missing required parameter: table",
+            });
+        }
 
-    baseUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
-    baseUrl.searchParams.set("secret", process.env.ELECTRIC_SOURCE_SECRET!);
+        if (!query.offset) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Missing required parameter: offset",
+            });
+        }
 
-    Object.entries(query).forEach(([key, value]) => {
-        baseUrl.searchParams.set(key, value);
-    });
+        // Build ElectricSQL URL with authentication
+        const baseUrl = new URL("/v1/shape", process.env.ELECTRIC_URL!);
+        baseUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
+        baseUrl.searchParams.set("secret", process.env.ELECTRIC_SOURCE_SECRET!);
 
-    const response = await fetch(baseUrl);
-    // console.log(baseUrl);
+        // Forward client query parameters
+        Object.entries(query).forEach(([key, value]) => {
+            baseUrl.searchParams.set(key, value);
+        });
 
-    event.node.res.setHeaders(response.headers);
-    event.node.res.statusCode = response.status;
-    event.node.res.statusMessage = response.statusText;
+        console.log("ElectricSQL proxy request:", baseUrl.toString().replace(process.env.ELECTRIC_SOURCE_SECRET!, "***"));
 
-    event.node.res.removeHeader("content-encoding");
-    event.node.res.removeHeader("content-length");
+        // Fetch from ElectricSQL
+        const response = await fetch(baseUrl);
 
-    return response.body;
+        if (!response.ok) {
+            console.error("ElectricSQL error:", response.status, response.statusText);
+            throw createError({
+                statusCode: response.status,
+                statusMessage: `ElectricSQL error: ${response.statusText}`,
+            });
+        }
+
+        // Copy all headers from ElectricSQL response (required for client-side ElectricSQL client)
+        response.headers.forEach((value, key) => {
+            // Skip problematic headers that shouldn't be forwarded
+            if (key !== "content-encoding" && key !== "content-length" && key !== "transfer-encoding") {
+                event.node.res.setHeader(key, value);
+            }
+        });
+
+        // Set status code
+        event.node.res.statusCode = response.status;
+        event.node.res.statusMessage = response.statusText;
+
+        // Stream the response body
+        if (response.body) {
+            return sendStream(event, response.body);
+        }
+
+        return null;
+    }
+    catch (error) {
+        // Log error for debugging
+        console.error("ElectricSQL proxy error:", error);
+
+        // Re-throw Nuxt errors
+        throw error;
+    }
 });

@@ -1,24 +1,26 @@
-import { sql } from "~~/lib/db/postgres";
 import generateTxId from "~~/server/utils/generateTxId";
 import type { Txid } from "@tanstack/electric-db-collection";
 import { validateUpdateTodo } from "~~/lib/db/validation";
+import db from "~~/lib/db";
+import { testTableInTest } from "~~/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
     try {
         const id = getRouterParam(event, "id");
-        const body = readBody(event);
+        const body = await readBody(event);
         const updateTodo = validateUpdateTodo(body);
 
         let txid!: Txid;
-        const updatedTodo = await sql.begin(async (tx) => {
+        const updatedTodo = await db.transaction(async (tx) => {
             txid = await generateTxId(tx);
 
-            const [result] = await tx`
-                UPDATE test.test_table
-                SET ${tx(updateTodo)}
-                WHERE id = ${id}
-                RETURNING id
-            `;
+            const [result] = await tx
+                .update(testTableInTest)
+                .set(updateTodo)
+                .where(
+                    eq(testTableInTest.id, parseInt(id!)),
+                ).returning({ id: testTableInTest.id });
 
             if (!result) {
                 throw new Error(`Todo with id ${id} not found`);

@@ -1,9 +1,16 @@
-import { sql } from "~~/lib/db/postgres";
+import db from "~~/lib/db";
+import { testTableInTest } from "~~/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
     try {
         const id = getRouterParam(event, "id");
-        const [todo] = await sql`select * from test.test_table where id = ${id!}`;
+
+        const result = await db.select().from(testTableInTest).where(
+            eq(testTableInTest.id, parseInt(id!)),
+        ).limit(1);
+
+        const todo = result[0];
 
         if (!todo) {
             throw createError({

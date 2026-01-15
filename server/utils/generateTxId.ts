@@ -1,10 +1,13 @@
 import type { Txid } from "@tanstack/electric-db-collection";
+import { sql } from "drizzle-orm";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function generateTxId(tx: any): Promise<Txid> {
-    const result = await tx`SELECT pg_current_xact_id()::xid::text as txid`;
+    const result = await tx.execute(
+        sql`SELECT pg_current_xact_id()::xid::text as txid`,
+    );
 
-    const txid = result[0]?.txid;
+    const txid = result.rows[0]?.txid;
 
     if (txid == undefined) {
         throw new Error("Failed to get transaction ID");

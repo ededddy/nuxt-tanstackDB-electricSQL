@@ -1,17 +1,19 @@
 import { validateInsertTodo } from "~~/lib/db/validation";
-import { sql } from "~~/lib/db/postgres";
 import generateTxId from "~~/server/utils/generateTxId";
 import type { Txid } from "@tanstack/electric-db-collection";
+import db from "~~/lib/db";
+import { testTableInTest } from "~~/lib/db/schema";
 
 export default defineEventHandler(async (event) => {
     try {
-        const body = readBody(event);
+        const body = await readBody(event);
         const todoData = validateInsertTodo(body);
 
         let txid!: Txid;
-        const newTodo = await sql.begin(async (tx) => {
+
+        const newTodo = await db.transaction(async (tx) => {
             txid = await generateTxId(tx);
-            const result = await tx`INSERT INTO test.test_table ${tx(todoData)} RETURNING *`;
+            const result = await tx.insert(testTableInTest).values(todoData).returning();
             return result;
         });
 
@@ -20,6 +22,7 @@ export default defineEventHandler(async (event) => {
         };
     }
     catch (error) {
+        console.error(error);
         throw createError({
             statusCode: 500,
             statusMessage: error instanceof Error ? error.message : String(error),

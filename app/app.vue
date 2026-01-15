@@ -2,6 +2,10 @@
 import { useLiveQuery } from "@tanstack/vue-db";
 import { todosCollection } from "~~/lib/collections";
 
+onMounted(async () => {
+    await todosCollection.preload();
+});
+
 const { data } = useLiveQuery(q =>
     q.from({ todos: todosCollection })
         .select(({ todos }) => ({

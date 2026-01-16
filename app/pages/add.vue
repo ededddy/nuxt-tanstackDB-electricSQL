@@ -1,22 +1,34 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { todosCollection } from "~~/lib/collections";
+
+const { $todoActions } = useNuxtApp();
+
+const error = ref<string | null>();
 
 const formData = ref({
     name: "",
     description: "",
 });
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
     console.log("Todo submitted:", formData.value);
-    todosCollection.insert({
+    const todo = {
         id: (-Math.floor(Math.random() * 10000)) + 1,
         name: formData.value.name,
         description: formData.value.description,
         completed: false,
         created_at: new Date(),
         updated_at: new Date(),
-    });
+    };
+    try {
+        if (typeof $todoActions.addTodo === `function`) {
+            $todoActions.addTodo(todo);
+        }
+    }
+    catch (err) {
+        error.value = (err instanceof Error ? err.message : `Failed to toggle todo`);
+    }
+
     navigateTo("/");
 };
 

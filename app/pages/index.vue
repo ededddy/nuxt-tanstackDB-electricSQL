@@ -2,8 +2,41 @@
 import { useLiveQuery } from "@tanstack/vue-db";
 import { todosCollection } from "~~/lib/collections";
 
+const { $offline, $todoActions } = useNuxtApp();
+
+const isOnline = ref(navigator.onLine);
+const pendingCount = ref(0);
+const error = ref<string | null>(null);
+
+let handleOnline: () => void;
+let handleOffline: () => void;
+let interval: NodeJS.Timeout;
+
 onMounted(async () => {
     await todosCollection.preload();
+
+    handleOnline = () => {
+        isOnline.value = true;
+        if ($offline) {
+            $offline.notifyOnline();
+        }
+    };
+    handleOffline = () => isOnline.value = false;
+
+    window.addEventListener(`online`, handleOnline);
+    window.addEventListener(`offline`, handleOffline);
+
+    if (!$offline) return;
+
+    interval = setInterval(() => {
+        pendingCount.value = $offline.getPendingCount();
+    }, 100);
+});
+
+onUnmounted(() => {
+    window.removeEventListener(`online`, handleOnline);
+    window.removeEventListener(`offline`, handleOffline);
+    clearInterval(interval);
 });
 
 const { data } = useLiveQuery(q =>
@@ -19,15 +52,25 @@ const { data } = useLiveQuery(q =>
 );
 
 const toggleComplete = async (todoId: number) => {
-    const tx = todosCollection.update(todoId, (target) => {
-        target.completed = !target.completed;
-    });
-    await tx.isPersisted.promise;
+    try {
+        if (typeof $todoActions.toggleTodo === "function") {
+            $todoActions.toggleTodo(todoId);
+        }
+    }
+    catch (err) {
+        error.value = (err instanceof Error ? err.message : `Failed to toggle todo`);
+    }
 };
 
-const deleteTodo = async (todoId: number) => {
-    const tx = todosCollection.delete(todoId);
-    await tx.isPersisted.promise;
+const handleDelete = async (todoId: number) => {
+    try {
+        if (typeof $todoActions.deleteTodo === "function") {
+            $todoActions.deleteTodo(todoId);
+        }
+    }
+    catch (err) {
+        error.value = (err instanceof Error ? err.message : `Failed to toggle todo`);
+    }
 };
 
 const formatDate = (date: Date | string | null) => {
@@ -120,7 +163,7 @@ const formatDate = (date: Date | string | null) => {
                         <button
                             class="delete-button"
                             aria-label="Delete todo"
-                            @click="deleteTodo(todo.id)"
+                            @click="handleDelete(todo.id)"
                         >
                             <svg
                                 viewBox="0 0 24 24"
@@ -138,10 +181,10 @@ const formatDate = (date: Date | string | null) => {
                 </div>
                 <div class="todo-meta">
                     <span
-                        v-if="todo.createdAt"
+                        v-if="todo.created_at"
                         class="meta-text"
                     >
-                        {{ formatDate(todo.createdAt) }}
+                        {{ formatDate(todo.created_at) }}
                     </span>
                 </div>
             </div>

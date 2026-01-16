@@ -8,7 +8,7 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 - ElectricSQL cloud
 
 ## To Do ? If I have time
-1. Offline Support  
+1. [x] Offline Support  
    ElectricSQL and @tanstack/db can support offline pwa
    that merge automatically, [official doc](https://github.com/TanStack/db/tree/main/examples/react/offline-transactions)
 2. Authentication stuff (mainly to protect endpoints, specifically
@@ -18,6 +18,9 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 Currently, vibe coded things:
 - Fix electric sql proxy return method
 - UI
+- Troubleshooting why single transaction being called multiple times (
+  Not familiar with Vue cycle and internal working of tanstack/db,
+  ElectricSQL)
 
 ## Setup
 

@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
             baseUrl.searchParams.set(key, value);
         });
 
-        console.log("ElectricSQL proxy request:", baseUrl.toString().replace(process.env.ELECTRIC_SOURCE_SECRET!, "***"));
+        // console.log("ElectricSQL proxy request:", baseUrl.toString().replace(process.env.ELECTRIC_SOURCE_SECRET!, "***"));
 
         // Fetch from ElectricSQL
         const response = await fetch(baseUrl);
@@ -36,7 +36,8 @@ export default defineEventHandler(async (event) => {
             console.error("ElectricSQL error:", response.status, response.statusText);
             throw createError({
                 statusCode: response.status,
-                statusMessage: `ElectricSQL error: ${response.statusText}`,
+                statusMessage: `Internal Server Error`,
+                message: `ElectricSQL error: ${response.statusText}`,
             });
         }
 

@@ -9,7 +9,8 @@ export default defineEventHandler(async (_event) => {
         console.error(error);
         throw createError({
             statusCode: 500,
-            statusMessage: error instanceof Error ? error.message : String(error),
+            message: error instanceof Error ? error.message : String(error),
+            statusMessage: "Internal server error",
         });
     }
 });

@@ -21,6 +21,7 @@
         "@tanstack/vue-db": "^0.0.96",
         "@types/node": "^25.0.8",
         "@vite-pwa/nuxt": "^1.1.0",
+        "better-auth": "^1.4.14",
         "drizzle-orm": "^0.45.1",
         "drizzle-zod": "^0.8.3",
         "eslint": "^9.0.0",

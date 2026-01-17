@@ -8,7 +8,7 @@ export default defineNuxtConfig({
         });
     }],
     ssr: false,
-    devtools: { enabled: false },
+    devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
     experimental: {
         appManifest: true,

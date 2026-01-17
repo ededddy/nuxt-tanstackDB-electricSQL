@@ -2,6 +2,10 @@
 import { useLiveQuery } from "@tanstack/vue-db";
 import { todosCollection } from "~~/lib/collections";
 
+definePageMeta({
+    middleware: "auth",
+});
+
 const { $offline, $todoActions } = useNuxtApp();
 
 const isOnline = ref(navigator.onLine);

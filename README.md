@@ -8,7 +8,7 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 - ElectricSQL cloud
 
 ## To Do ? If I have time
--  [x] Offline Support (I have no glue it works or not)  
+-  [x] Offline Support (I have no clue it works or not)  
     - ElectricSQL and @tanstack/db can support offline pwa
     that merge automatically, [official doc](https://github.com/TanStack/db/tree/main/examples/react/offline-transactions)
 
@@ -16,6 +16,7 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
     - The pwa install prompt is not working
     - pwa requires `https` but I ain't doing that.
     - Network tab `offline` is still commiting to db (I have no clue)
+    - [ ] I think we need to add PGLite for write path sync
 
 - [x] Authentication stuff (mainly to protect endpoints, specifically
    ElectricSQL's proxy)
